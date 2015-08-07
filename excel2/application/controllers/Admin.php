@@ -153,7 +153,7 @@ class Admin extends CI_Controller
     public function doupload(){
 
         $config['upload_path'] = './data_temp/';
-		$config['allowed_types'] = 'csv|xlsm';
+		    $config['allowed_types'] = 'csv|xlsm';
         $config['file_name'] = 'dataset';
 
 
@@ -320,6 +320,9 @@ class Admin extends CI_Controller
         echo json_encode($col_name);
     }
 
+
+    //date on col 2
+    
     function get_sheet_date($sheetname){
         $sheetindex = $this->get_sheet_index($sheetname);
         $Reader = $this->reader_conf($sheetindex);
@@ -328,19 +331,47 @@ class Admin extends CI_Controller
         {
             foreach($value as $row => $data_val)
             {
-                
-                if ($index == 0) 
-                {
-                    //$header[$row] = $data_val;
-                } elseif ($colindex == $row) {
-                    $arr_data[] = $data_val;
+               if ($row == 1) {
+                    $date = str_replace('-','/',$data_val);
+                    $arr_data[] = date("m/d/Y",strtotime($date));
+                    //$arr_data[] = $data_val;
                 }
             }
-
         }
+        //get data_tanggal 
         echo json_encode($arr_data);
     }
     
+
+    function test_get_sheet_date($sheetname){
+
+        $sheetindex = $this->get_sheet_index($sheetname);
+        $Reader = $this->reader_conf($sheetindex);
+
+        $startDate = date("m/d/Y",strtotime($this->input->get('startDate')));
+        $endDate = date("m/d/Y",strtotime($this->input->get('endDate')));
+        
+        foreach ($Reader as $index => $value)
+        {
+            foreach($value as $row => $data_val)
+            {
+               if ($row == 1) {
+                    $date = str_replace('-','/',$data_val);
+                    $temp = date("m/d/Y",strtotime($date));
+                    //$arr_data[] = date("m/d/Y",strtotime($date));
+                    //$arr_data[] = $data_val;
+                    if($temp >= $startDate and $temp <= $endDate){
+                      $arr_data[] = $temp;
+
+                    }
+                      
+                }
+            }
+        }
+        //get data_tanggal 
+        echo json_encode($arr_data);
+    }
+
     function get_chart_index_by_name($colname,$sheetname){
         $sheetindex = $this->get_sheet_index('regional_daily');
         $Reader = $this->reader_conf($sheetindex);
@@ -362,6 +393,48 @@ class Admin extends CI_Controller
         }
         echo json_encode($arr_data);
        
+    }
+
+
+
+    public function TEST_get_data_by_option($colindex,$sheetname,$flag,$start,$end){
+        $sheetindex = $this->get_sheet_index($sheetname);
+        
+        $Reader = $this->reader_conf($sheetindex);
+        
+        //$sql_header = $this->get_sql_header($sheetname);
+
+        if($flag){
+          foreach ($Reader as $index => $value)
+          {
+              foreach($value as $row => $data_val)
+              {
+                  
+                  if ($index == 0) 
+                  {
+                      //$header[$row] = $data_val;
+                  } elseif ($colindex == $row) {
+                      $arr_data[] = $data_val;
+                  }
+              }
+          }
+        }else{
+          foreach ($Reader as $index => $value)
+          {
+              foreach($value as $row => $data_val)
+              {
+                  
+                  if ($index == 0) 
+                  {
+                      //$header[$row] = $data_val;
+                  } elseif ($colindex == $row) {
+                      $arr_data[] = $data_val;
+                  }
+              }
+          }
+        }
+        echo json_encode($arr_data);
+
     }
     
     public function get_data_by_option($colindex,$sheetname){

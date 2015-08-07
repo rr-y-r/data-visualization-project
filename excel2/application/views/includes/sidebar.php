@@ -50,20 +50,26 @@
                 </select>
                  <br>
             </div>
-        
-            <div class="form-group sheet_conf hidden">
-                 <label>RNC Date Range</label>
-                 <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-                    <span></span> <b class="caret"></b>
-                </div>
-                 <br>
+            <div class="form-group col-md-6 sheet_conf hidden">
+            <label>Start Date</label>
+                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                <input type="text" class="startDate_input" name"startDate_input" value="10/24/1984"/>
+            </div>
+            <div class="form-group col-md-6 sheet_conf hidden">
+                <label>End Date</label>
+                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                <input type="text" class="endDate_input" name"endDate_input" value="10/24/1984"/>
             </div>
             <br>
             <br>
             <br>
         </div> 
 
+        
+
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="opt-apply btn btn-success btn-large">Sucess</button>
       </div>
        </div>
     </div>

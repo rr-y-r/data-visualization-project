@@ -13,13 +13,26 @@ body {
 .navbar-logo{
   height: 35px;
   width: 35px;
-  margin-top: -10px;
+
+}
+
+.navbar-header{
+  width:100%;
 }
 
 .logo-telkomsel{
   position: absolute;
+  display: inline-block;
   right:75px;
   float: right !important;
+}
+
+.menu-toggle{
+  position: absolute;
+  display: block;
+
+  float: right !important;
+
 }
 
 #chart_0_0,#chart_1_0,#chart_2_0,
@@ -34,10 +47,7 @@ body {
     float:left;
 }
 
-.menu-toggle{
-    font-size: 35px;
-    color: #676767;
-}
+
 
 .load-text{
     top: 50%;
@@ -157,6 +167,22 @@ p {
     line-height: 1.6em;
 }
 
+
+.navbar-brand-title {
+  padding-right: 50px;
+  padding-left: 50px;
+  display: inline-block;
+
+  float:none;
+
+}
+.navbar-header {
+    float: left;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+}
+
 p.lead {
 	font-weight: 600;
 }
@@ -168,9 +194,7 @@ a {
     transition: all .2s ease-in-out;
 }
 
-th{
-    color:#fff;
-}
+
 
 #home-tab{
     color: #666;

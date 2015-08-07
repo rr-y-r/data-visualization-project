@@ -255,25 +255,94 @@
                 }
             }
 
+
+
 */
+            function test_get_data_date(sheetname,startDate,endDate){
+
+                var url_getDate = '<?=site_url("admin/test_get_sheet_date"); ?>'+'/'+sheetname+'?startDate='+String(startDate)+'&endDate='+String(endDate);
+                //var newDate = [];
+                //alert('startDate passing -> '+String(startDate));
+                //alert('endDate passing -> '+String(endDate));
+
+                $.getJSON(url_getDate).always(function(data_date){
+                   alert(data_date);
+                });
+            }
+
             function get_data_date(sheetname){
 
                 var url_getDate = '<?=site_url("admin/get_sheet_date"); ?>'+'/'+sheetname;
+                var newDate = [];
                 $.getJSON(url_getDate).always(function(data_date){
-                    console.log(data_date);
+                    //alert(data_date);
+
+                    $.each(data_date, function(i, el){
+                        if($.inArray(el, newDate) === -1) newDate.push(el);
+                    });
+
+                    //alert(newDate);
+
+                    function cb(start, end) {
+                        $('#sheet_conf').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                    }
+
+                    $('.startDate_input').daterangepicker({
+                        "singleDatePicker": true,
+                        "showDropdowns": true,
+                        "minDate":  newDate[1],
+                        "maxDate": newDate[newDate.length - 1],
+                        "startDate": newDate[1],
+                        "endDate": newDate[newDate.length - 1],
+                    }, cb);
+
+                    $('.endDate_input').daterangepicker({
+                        "singleDatePicker": true,
+                        "showDropdowns": true,
+                        "minDate":  newDate[1],
+                        "maxDate": newDate[newDate.length - 1],
+                        "startDate": newDate[1],
+                        "endDate": newDate[newDate.length - 1],
+                    }, function(start, end, label) {
+
+                    
+                    });
+
+                    
+                //test_get_data_date(sheetname,newDate[1],newDate[newDate.length - 1]);
+
                 });
+                
             }
+
+            $('.opt-apply').click(function(){
+                //alert($('.endDate_input').val());
+                //alert($('.sheet_option').val());
+                test_get_data_date($('.sheet_option').val(),$('.startDate_input').val(),$('.endDate_input').val());
+            });
+
+            
 
             function get_data_time(sheetname){
                 //on rnc hourly
                 var url_chartName_y = '<?=site_url("admin/get_col_name"); ?>'+'/'+idx_y[i]+'/'+sheetname;
-
+                var newDate = [];
                 $.getJSON(url_data_x).always(function(data_y){
+                    //alert(data_y);
+                    //get_time_by_range(input1,input2,);
+                    //var names = ["Mike","Matt","Nancy","Adam","Jenny","Nancy","Carl"];
                     
+                    $.each(data_y, function(i, el){
+                        if($.inArray(el, newDate) === -1) newDate.push(el);
+                    });
                 });
+
+                alert(newDate);
+
+
             }
 
-            function get_time_by_range(start,end,date,time){
+            function get_time_by_range(date_start,date_end,time_start,time_end){
                 $.getJSON(url_data_x).always(function(data_y){
                     
                 });
@@ -466,6 +535,7 @@
             //do_visualisation('regional_daily','accessibility');
 
             get_data_date('regional_daily');
+            //test_get_data_date('regional_daily');
 
             // this one is working
             //visualisation_by_sheetname('regional_daily');
@@ -478,8 +548,11 @@
             
         });
 
-        $( ".sheet_option" )
-          .change(function () {
+        $(".applySetting").click(function(){
+            alert(document.getElementById('date_range_data').innerText);
+        });
+
+        $( ".sheet_option" ).change(function () {
             var str = "";
             $( "select option:selected" ).each(function() {
               
@@ -497,24 +570,9 @@
             //$( "div" ).text( str );
 
             
-          })
-          .change();
+          }).change();
 
-          function cb(start, end) {
-                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-            }
-            cb(moment().subtract(29, 'days'), moment());
-
-            $('#reportrange').daterangepicker({
-                ranges: {
-                   'Today': [moment(), moment()],
-                   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                }
-            }, cb);
+          
 
 
 		</script>
