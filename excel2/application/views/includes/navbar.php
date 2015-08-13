@@ -14,11 +14,5 @@
           <li><a href="#" class="glyphicon glyphicon-th-list menu-toggle" data-toggle="modal" data-target="#apps_option"></a></li>
         </ul>
       </div>
-      
-
-    
-
-      
-    
   </div>
 </header>

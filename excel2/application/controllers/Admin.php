@@ -9,6 +9,13 @@ class Admin extends CI_Controller
         $this->load->model('Datamodel');
         
     }
+
+    public function json_response($successful, $message){
+        echo json_encode(array(
+            'isSuccessful' => $successful,
+            'message' => $message
+        )); 
+    }
     
     public function get_sql_header($sheetname){
         if($sheetname == 'RNC Daily' || $sheetname == 'rnc_daily' ){
@@ -160,7 +167,7 @@ class Admin extends CI_Controller
 		$this->load->library('upload', $config);
         
         var_dump($this->upload->do_upload());
-
+        
 		if ( ! $this->upload->do_upload())
 		{
 			$error = array('error' => $this->upload->display_errors());
@@ -173,6 +180,19 @@ class Admin extends CI_Controller
 
 			$this->load->view('upload_success', $data);
 		}
+/*
+    if (! $this->upload->do_upload()) 
+            {
+                $message = "Data user berhasil ditambahakan !";
+                //$error = array('error' => $this->upload->display_errors());
+                $this->json_response(TRUE, $message);
+            } 
+            else 
+            {
+                $message = "file successfuly uploaded";
+                $this->json_response(FALSE, $message);
+            }
+            */
         
     }
     
@@ -341,9 +361,48 @@ class Admin extends CI_Controller
         //get data_tanggal 
         echo json_encode($arr_data);
     }
+
+
+    function test_get_sheet_data_by_date($colindex,$sheetname){
+
+        $sheetindex = $this->get_sheet_index($sheetname);
+        $Reader = $this->reader_conf($sheetindex);
+
+        $startDate = date("m/d/Y",strtotime($this->input->get('startDate')));
+        $endDate = date("m/d/Y",strtotime($this->input->get('endDate')));
+
+        $flag = false;
+
+        $arr_data;
+        
+        foreach ($Reader as $index => $value)
+        {
+            foreach($value as $row => $data_val)
+            {
+              if($index > 0){
+                //$arr_data[]=$value[1];
+                $date = str_replace('-','/',$value[1]);
+                $temp = date("m/d/Y",strtotime($date));
+                $flag = false;
+                if($temp >= $startDate and $temp <= $endDate){
+                  $flag = true;
+                }
+
+                if($flag==true){
+                    if ($colindex == $row) {
+                      $arr_data[] = $data_val;
+                  }
+                }
+              }
+               
+            }
+        }
+        //get data_tanggal 
+        echo json_encode($arr_data);
+    }
     
 
-    function test_get_sheet_date($sheetname){
+    function get_sheet_data_by_date($sheetname){
 
         $sheetindex = $this->get_sheet_index($sheetname);
         $Reader = $this->reader_conf($sheetindex);
@@ -361,7 +420,7 @@ class Admin extends CI_Controller
                     //$arr_data[] = date("m/d/Y",strtotime($date));
                     //$arr_data[] = $data_val;
                     if($temp >= $startDate and $temp <= $endDate){
-                      $arr_data[] = $temp;
+                      $arr_data[] = $data_val;
 
                     }
                       
@@ -463,12 +522,7 @@ class Admin extends CI_Controller
 
     }
     
-    private function json_response($successful, $message){
-        echo json_encode(array(
-            'isSuccessful' => $successful,
-            'message' => $message
-        )); 
-    }
+
 }
     
    

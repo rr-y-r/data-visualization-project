@@ -299,5 +299,141 @@ class MyPreciousUnusedScript extends CI_Controller
         $data = $this->get_sql_header('Regional Daily');
         $this->load->view('test',array('data_test' => $data));
     }
+
+
+    function test_get_sheet_data_by_date($colindex,$sheetname){
+
+        $sheetindex = $this->get_sheet_index($sheetname);
+        $Reader = $this->reader_conf($sheetindex);
+
+        $startDate = date("m/d/Y",strtotime($this->input->get('startDate')));
+        $endDate = date("m/d/Y",strtotime($this->input->get('endDate')));
+
+        $flag = false;
+        
+        foreach ($Reader as $index => $value)
+        {
+            foreach($value as $row => $data_val)
+            {
+              if ($colindex == $row && $index > 0) {
+                    $arr_data[] = $data_val;
+                    if ($row == 1) {
+                    $date = str_replace('-','/',$data_val);
+                    $temp = date("m/d/Y",strtotime($date));
+                    //$arr_data[] = date("m/d/Y",strtotime($date));
+                    //$arr_data[] = $data_val;
+                      if($temp >= $startDate and $temp <= $endDate){
+                        $arr_data[] = $data_val;
+
+                      }
+                      
+                  }
+                }
+               
+            }
+        }
+        //get data_tanggal 
+        echo json_encode($arr_data);
+    }
+
+    //jscript
+    /*
+    function get_data_date(sheetname){
+
+                    //alert(data_date);
+
+
+                    //alert(newDate);
+
+                    function cb(start, end) {
+                        $('#sheet_conf').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                    }
+
+                    $('.startDate_input').daterangepicker({
+                        "singleDatePicker": true,
+                        "showDropdowns": true,
+                        "minDate":  newDate[1],
+                        "maxDate": newDate[newDate.length - 1],
+                        "startDate": newDate[1],
+                        "endDate": newDate[newDate.length - 1],
+                    }, cb);
+
+                    $('.endDate_input').daterangepicker({
+                        "singleDatePicker": true,
+                        "showDropdowns": true,
+                        "minDate":  newDate[1],
+                        "maxDate": newDate[newDate.length - 1],
+                        "startDate": newDate[1],
+                        "endDate": newDate[newDate.length - 1],
+                    }, function(start, end, label) {
+
+                    
+                    });
+
+                    
+                //test_get_data_date(sheetname,newDate[1],newDate[newDate.length - 1]);
+
+                
+                
+            }
+
+            //upload form with ajax
+
+            $('#addSuccess').hide();
+            $('#addError').hide();
+
+            $('#uploadFileDataForm').submit(function(e) {
+                e.preventDefault();
+                 var file_data = $('#datafileform').prop('files')[0];   
+                    var form_data = new FormData();                  
+                    form_data.append('file', file_data);
+                    alert(file_data);                             
+                    $.ajax({
+                                url: '<?=site_url("admin/doupload"); ?>', // point to server-side PHP script 
+                                dataType: 'text',  // what to expect back from the PHP script, if anything
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                data: form_data,                         
+                                type: 'post',
+                                success: function(php_script_response){
+                                    alert(php_script_response); // display response from the PHP script, if any
+                                }
+                     });
+            });
+            /*
+            $('#uploadFileDataForm').submit(function() {
+              var form = $(this);
+              form.children('button').prop('disabled', true);
+
+              $('#addSuccess').hide();
+              $('#addError').hide();
+              
+              var faction = '<?=site_url("admin/doupload"); ?>';
+              var fdata = form.serialize();
+
+
+              $.post(faction, fdata, function(rdata) {
+
+                  var data_process = $.parseJSON(rdata);
+                  alert(data_process);
+
+                  if (data_process) {
+                      $('#addSuccessMessage').html(data_process.message);
+                      $('#addSuccess').show();
+                  } else {
+                      $('#addErrorMessage').html(data_process.message);
+                      $('#addError').show();
+                  }
+
+                  form.children('button').prop('disabled', false);
+                  form.children('input[name="name"]').select();
+              });
+
+              return false;
+
+            });
+            */
+    */
     
 }

@@ -3,6 +3,7 @@
 <title>Upload Form</title>
 </head>
 <body>
+<?php echo $error;?>
 
 <h3>Your file was successfully uploaded!</h3>
 
@@ -11,8 +12,7 @@
 <li><?php echo $item;?>: <?php echo $value;?></li>
 <?php endforeach; ?>
 </ul>
-
-<p><?php echo anchor('admin/upload', 'Upload Another File!'); ?></p>
+<span>Click here to return to <a href="<?=site_url('admin/chart/'); ?>">3G PERFORMANCE MONITORING PAGE</a></span>
 
 </body>
 </html>
