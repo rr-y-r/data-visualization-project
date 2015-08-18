@@ -61,14 +61,25 @@ body {
 }
 
 .loading-p{
-  font-size: 45px;
+  font-size: 35px;
+}
+
+.render-chart_chart_0_0,.render-chart_chart_1_0,.render-chart_chart_2_0,
+.render-chart_chart_0_1,.render-chart_chart_1_1,.render-chart_chart_2_1,
+.render-chart_chart_0_2,.render-chart_chart_1_2,.render-chart_chart_2_2,
+.render-chart_chart_0_3,.render-chart_chart_1_3,.render-chart_chart_2_3,
+.render-chart_chart_0_4,.render-chart_chart_1_4,.render-chart_chart_2_4,
+.render-chart_chart_0_5,.render-chart_chart_1_5,.render-chart_chart_2_5{
+  font-size: 128px;
+  text-align: center;
+  opacity: 0.5;
 }
 
 .loading-data{
     height: 100%;
     width: 100%;
       z-index: 9999;
-      font-size: 75px;
+      font-size: 65px;
       position: fixed;
       /* left: 0; */
       /* right: 0; */

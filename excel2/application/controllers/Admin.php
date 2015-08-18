@@ -2,13 +2,24 @@
 
 class Admin extends CI_Controller
 {
+
+    private $data_file_conf;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->load->model('Datamodel');
-        
+
+        $this->data_file_conf = "./data_temp/dataset.xlsm";
     }
+
+
+    public function set_file_conf($value){
+      $this->data_file_conf = $value;
+      return $this->data_file_conf;
+    }
+ 
 
     public function json_response($successful, $message){
         echo json_encode(array(
@@ -156,17 +167,44 @@ class Admin extends CI_Controller
     function upload(){
         $this->load->view('upload_form', array('error' => ' ' ));
     }
+
+    function get_file_list(){
+      $dir = './data_temp/';
+
+      date_default_timezone_set("Asia/Jakarta"); 
+
+      $timezone = date_default_timezone_get();
+      $date = date('(d,M)h-i-s', time());
+
+      $arr_data;
+
+      if (is_dir($dir)){
+        if ($dh = opendir($dir)){
+          while (($file = readdir($dh)) !== false){
+            $arr_data[] = $file;
+          }
+          closedir($dh);
+        }
+      }
+        return $arr_data;
+    }
     
     public function doupload(){
 
+        date_default_timezone_set("Asia/Jakarta"); 
+
+        $timezone = date_default_timezone_get();
+        $date_file_name = date('(d,M)h-i-s', time());
+
+
         $config['upload_path'] = './data_temp/';
 		    $config['allowed_types'] = 'csv|xlsm';
-        $config['file_name'] = 'dataset';
+        $config['file_name'] = 'dataset'.$date_file_name;
 
 
 		$this->load->library('upload', $config);
         
-        var_dump($this->upload->do_upload());
+        //var_dump($this->upload->do_upload());
         
 		if ( ! $this->upload->do_upload())
 		{
@@ -194,59 +232,6 @@ class Admin extends CI_Controller
             }
             */
         
-    }
-    
-    public function data_conversion($sheetname,$tabname,$sheetindex){
-        $this->load->library('Excel_reader');
-        
-        $Reader = new SpreadsheetReader("./data_temp/dataset.xlsm",false);
-
-        $sql_header = $this->get_sql_header($sheetname);
-        
-        $Reader -> ChangeSheet($sheetindex);
-        $i=0;
-        
-        foreach ($Reader as $index => $value)
-        {
-            foreach($value as $row => $data_val)
-            {
-                if ($index == 0) {
-                    $header[$row] = $data_val;
-                } else {
-                    $arr_data[$i][$row] = $data_val;
-                }
-            }
-
-            $i++;
-        }
-
-        $data_raw['header'] = $header;
-        $data_raw['values'] = $arr_data;
-        
-        foreach($data_raw['values'] as $row){
-            $temp = array();
-            $x=0;
-            foreach($row as $row_data => $value){
-
-                if($sql_header[$x]=='Date'){
-                    $date = str_replace('-','/',$value);
-                    $temp[$sql_header[$x]] = date("Y-d-m",strtotime($date));
-                }else{
-                    $temp[$sql_header[$x]] = $value;
-                }
-
-                $x++;
-            }
-
-            $this->Datamodel->insert($temp,$tabname);
-            $temp=null;
-        }
-
-    }
-    
-    function test_get_data(){
-        $data = $this->Datamodel->get_data('regional_daily');
-        echo json_encode(array('data_tab'=>$data));
     }
     
     public function get_data_converted(){
@@ -301,12 +286,13 @@ class Admin extends CI_Controller
     }
     
     public function chart(){
-        $this->load->view('chart');
+        $file_list_array = $this->get_file_list();
+        $this->load->view('chart',array('file_list' => $this->get_file_list()));
     }
     
     public function reader_conf($sheetindex){
         $this->load->library('Excel_reader');
-        $Reader = new SpreadsheetReader("./data_temp/dataset.xlsm",false);
+        $Reader = new SpreadsheetReader($this->data_file_conf,false);
         $Reader -> ChangeSheet($sheetindex);
         
         return $Reader;
@@ -397,6 +383,98 @@ class Admin extends CI_Controller
                
             }
         }
+        //get data_tanggal 
+        echo json_encode($arr_data);
+    }
+
+    function get_sheet_categories_by_date($sheetname){
+
+        $sheetindex = $this->get_sheet_index($sheetname);
+        $Reader = $this->reader_conf($sheetindex);
+
+        $startDate = date("m/d/Y",strtotime($this->input->get('startDate')));
+        $endDate = date("m/d/Y",strtotime($this->input->get('endDate')));
+
+        $flag = false;
+
+        $arr_data;
+        
+        foreach ($Reader as $index => $value)
+        {
+            foreach($value as $row => $data_val)
+            {
+              if($index > 0){
+                //$arr_data[]=$value[1];
+                $date = str_replace('-','/',$value[1]);
+                $temp = date("m/d/Y",strtotime($date));
+                $flag = false;
+                if($temp >= $startDate and $temp <= $endDate){
+                  $flag = true;
+                }
+
+                if($flag==true){
+                    if ($row == 1) {
+                      $data_date = str_replace('-','/',$data_val);
+                      $arr_data[] = date("d/M",strtotime($data_date));
+                  }
+                }
+              }
+               
+            }
+        }
+        //get data_tanggal 
+        echo json_encode($arr_data);
+    }
+
+    function get_sheet_time_categories_by_date($sheetname){
+
+        $sheetindex = $this->get_sheet_index($sheetname);
+        $Reader = $this->reader_conf($sheetindex);
+
+        $startDate = date("m/d/Y",strtotime($this->input->get('startDate')));
+        $endDate = date("m/d/Y",strtotime($this->input->get('endDate')));
+
+        $flag = false;
+
+        $arr_data;
+        $date_val;
+        $hour_val;
+        
+        foreach ($Reader as $index => $value)
+        {
+            foreach($value as $row => $data_val)
+            {
+              if($index > 0){
+                //$arr_data[]=$value[1];
+                $date = str_replace('-','/',$value[1]);
+                $temp = date("m/d/Y",strtotime($date));
+                $flag = false;
+                if($temp >= $startDate and $temp <= $endDate){
+                  $flag = true;
+                }
+
+                if($flag==true){
+                  if ($row == 1) {
+                      $data_date = str_replace('-','/',$data_val);
+                      //$arr_data[] = date("d/M/y",strtotime($data_date));
+                      $date_val[] = date("d/M",strtotime($data_date));
+                  }
+                    if ($row == 2) {
+                      //$data_date = str_replace('-','/',$data_val);
+                      //$arr_data[] = date("d/M/y",strtotime($data_date));
+                      $hour_val[] = $data_val;
+                  }
+                }
+              }
+               
+            }
+        }
+
+        for($i=0;$i<count($date_val);$i++){
+          $arr_data[] = $date_val[$i].' - '.$hour_val[$i];
+        }
+
+        //$arr_data = $date_val.$hour_val;
         //get data_tanggal 
         echo json_encode($arr_data);
     }

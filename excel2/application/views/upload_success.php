@@ -3,7 +3,6 @@
 <title>Upload Form</title>
 </head>
 <body>
-<?php echo $error;?>
 
 <h3>Your file was successfully uploaded!</h3>
 

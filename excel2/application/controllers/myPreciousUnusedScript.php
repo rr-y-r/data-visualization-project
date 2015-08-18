@@ -65,6 +65,59 @@ class MyPreciousUnusedScript extends CI_Controller
         //$this->Datamodel->insert($temp);
         
     }
+
+    public function data_conversion($sheetname,$tabname,$sheetindex){
+        $this->load->library('Excel_reader');
+        
+        $Reader = new SpreadsheetReader("./data_temp/dataset.xlsm",false);
+
+        $sql_header = $this->get_sql_header($sheetname);
+        
+        $Reader -> ChangeSheet($sheetindex);
+        $i=0;
+        
+        foreach ($Reader as $index => $value)
+        {
+            foreach($value as $row => $data_val)
+            {
+                if ($index == 0) {
+                    $header[$row] = $data_val;
+                } else {
+                    $arr_data[$i][$row] = $data_val;
+                }
+            }
+
+            $i++;
+        }
+
+        $data_raw['header'] = $header;
+        $data_raw['values'] = $arr_data;
+        
+        foreach($data_raw['values'] as $row){
+            $temp = array();
+            $x=0;
+            foreach($row as $row_data => $value){
+
+                if($sql_header[$x]=='Date'){
+                    $date = str_replace('-','/',$value);
+                    $temp[$sql_header[$x]] = date("Y-d-m",strtotime($date));
+                }else{
+                    $temp[$sql_header[$x]] = $value;
+                }
+
+                $x++;
+            }
+
+            $this->Datamodel->insert($temp,$tabname);
+            $temp=null;
+        }
+
+    }
+
+    function test_get_data(){
+        $data = $this->Datamodel->get_data('regional_daily');
+        echo json_encode(array('data_tab'=>$data));
+    }
     
     public function insert_toDB($start_range,$end_range,$sheetname,$tabname,$data_attemp)
     {  
@@ -433,7 +486,288 @@ class MyPreciousUnusedScript extends CI_Controller
               return false;
 
             });
+
+
+            //onchart for rendering visual
+            function do_visualisation(sheetname,chart_title,chart_idx){
+                
+                switch (chart_title) {
+                    case 'accessibility':
+                        idx_x=[51,52,53];
+                        idx_y=[3,4,5];
+                        draw_chart(chart_title,idx_x,idx_y,sheetname,chart_idx);
+                        break;
+                    case 'retainability':
+                        idx_x=[27,29,31];
+                        idx_y=[3,4,5];
+                        draw_chart(chart_title,idx_x,idx_y,sheetname,chart_idx);
+                        break;
+                    case 'mobility':
+                        idx_x=[56,55,57];
+                        idx_y=[12,11,13];
+                        draw_chart(chart_title,idx_x,idx_y,sheetname,chart_idx);
+                        break;
+                    case 'traffic':
+                        //chart_title=[20,'PS DL payload(Mbytes) vs PS UL payload(Mbytes)',21];
+                        idx_x=[0,20,0];
+                        //trafic voice, ps dl payload, hsdpa payload
+                        idx_y=[49,19,21];
+                        draw_chart(chart_title,idx_x,idx_y,sheetname,chart_idx);
+                        break;
+                    case 'throughput':
+                        //idx_x;
+                        //chart_title=[15,17,18];
+                        idx_y=[0,0,0,]
+                        idx_x=[15,17,18];
+                        draw_chart(chart_title,idx_x,idx_y,sheetname,chart_idx);
+                        break;
+                    case 'hsupa':
+                        idx_x=[54,33,0];
+                        idx_y=[6,6,22];
+                        draw_chart(chart_title,idx_x,idx_y,sheetname,chart_idx);
+                        break;
+                        /*
+                    case 'extra':
+                        idx_x=;
+                        idx_y=0;
+                        break;
+                        */
+                    }
+            }    
+            
+            function draw_chart(chart_title,idx_x,idx_y,sheetname,chart_idx){
+                //alert(chart_title);
+                for(i=0;i<3;i++){
+                    /*
+                    if(idx_x[i] == 0){
+                        var url_data_x= null;
+                        var url_chartName_x= null;
+                        
+                    }if(idx_y[i] == 0){
+                        var url_data_y = null;
+                        var url_chartName_y = null;
+
+                    }else{
+
+                        var url_data_x = '<?=site_url("admin/get_data_by_option"); ?>'+'/'+idx_x[i]+'/'+sheetname;
+                        var url_data_y = '<?=site_url("admin/get_data_by_option"); ?>'+'/'+idx_y[i]+'/'+sheetname;
+                        var url_chartName_x = '<?=site_url("admin/get_col_name"); ?>'+'/'+idx_x[i]+'/'+sheetname;
+                        var url_chartName_y = '<?=site_url("admin/get_col_name"); ?>'+'/'+idx_y[i]+'/'+sheetname;
+
+                    }*/
+                    var url_data_x = '<?=site_url("admin/test_get_sheet_data_by_date"); ?>'+'/'+idx_x[i]+'/'+sheetname;
+                    var url_data_y = '<?=site_url("admin/test_get_sheet_data_by_date"); ?>'+'/'+idx_y[i]+'/'+sheetname;
+                    var url_chartName_x = '<?=site_url("admin/get_col_name"); ?>'+'/'+idx_x[i]+'/'+sheetname;
+                    var url_chartName_y = '<?=site_url("admin/get_col_name"); ?>'+'/'+idx_y[i]+'/'+sheetname;
+                    var categories_x = '<?=site_url("admin/get_sheet_categories_by_date"); ?>'+'/'+sheetname;
+                    var chart_html = 'chart_'+i+'_'+chart_idx;
+                    retrieving_data(url_data_x,url_data_y,url_chartName_x,url_chartName_y,categories_x,chart_html);
+
+                }
+            }
             */
     */
+
+            /*
+            function accessibility_chart(sheetname){
+                    var url_data_x = '<?=site_url("admin/get_chart_index_by_name/Fail_CS"); ?>'+'/'+sheetname;
+                    var url_data_y = '<?=site_url("admin/get_data_by_option/3"); ?>'+'/'+sheetname;
+                    $.getJSON(url_data_y, function(data_y){
+                        //alert(data);
+                        $.getJSON(url_data_x, function(data_x){
+                        //alert(data);
+                        var chart_1 = new Highcharts.Chart({
+                            chart: {
+                                renderTo: 'chart_1',
+                                zoomType: 'xy'
+                            },
+                            title: {
+                                text: 'CSSR CS(%)'
+                            },
+                            xAxis: [{
+
+                            }],
+                            yAxis: [{
+                                title: {
+                                    text: 'CSSR CS(%)'
+                                }
+                            }, {
+                                title: {
+                                    text: 'CS FAIL'
+                                },
+                                opposite: true
+                            }],
+                            legend: {
+                                shadow: false
+                            },
+                            tooltip: {
+                                shared: true
+                            },
+                            plotOptions: {
+                                column: {
+                                    grouping: false
+                                }
+                            },
+                            series: [{
+                                name: 'CSSR CS(%)',
+                                data: data_y
+                            },
+                             {
+                                name: 'CS Fail',
+                                type: 'column',
+                                data: data_x,
+                                 yAxis: 1
+                                     }]
+                        });
+
+                    });
+
+                    });
+                
+
+                    var url_data_x = '<?=site_url("admin/get_chart_index_by_name/Fail_CS"); ?>'+'/'+sheetname;
+                    var url_data_y = '<?=site_url("admin/get_data_by_option/3"); ?>'+'/'+sheetname;
+                        $.getJSON(url_data_y, function(data_y){
+                            //alert(data);
+                            $.getJSON(url_data_x, function(data_x){
+                            //alert(data);
+                            var chart_2 = new Highcharts.Chart({
+                                chart: {
+                                    renderTo: 'chart_2',
+                                    zoomType: 'xy'
+                                },
+                                title: {
+                                    text: 'CSSR PS(%)'
+                                },
+                                xAxis: [{
+
+                                }],
+                                yAxis: [{
+                                    title: {
+                                        text: 'CSSR PS(%)'
+                                    }
+                                }, {
+                                    title: {
+                                        text: 'CSSR FAIL'
+                                    },
+                                    opposite: true
+                                }],
+                                legend: {
+                                    shadow: false
+                                },
+                                tooltip: {
+                                    shared: true
+                                },
+                                plotOptions: {
+                                    column: {
+                                        grouping: false
+                                    }
+                                },
+                                series: [{
+                                    name: 'CSSR PS(%)',
+                                    data: data_y
+                                },
+                                 {
+                                    name: 'CS Fail',
+                                    type: 'column',
+                                    data: data_x,
+                                     yAxis: 1
+                                         }]
+                            });
+
+                        });
+
+                        });
+                    
+
+                    var url_data_x = '<?=site_url("admin/get_chart_index_by_name/Fail_CS"); ?>'+'/'+sheetname;
+                    var url_data_y = '<?=site_url("admin/get_data_by_option/3"); ?>'+'/'+sheetname;
+                        $.getJSON(url_data_y, function(data_y){
+                            //alert(data);
+                            $.getJSON(url_data_x, function(data_x){
+                            //alert(data);
+                            var chart_3 = new Highcharts.Chart({
+                                chart: {
+                                    renderTo: 'chart_3',
+                                    zoomType: 'xy'
+                                },
+                                title: {
+                                    text: 'CSSR HSDPA(%)'
+                                },
+                                xAxis: [{
+
+                                }],
+                                yAxis: [{
+                                    title: {
+                                        text: 'CSSR HSDPA(%)'
+                                    }
+                                }, {
+                                    title: {
+                                        text: 'CSSR HSDPA'
+                                    },
+                                    opposite: true
+                                }],
+                                legend: {
+                                    shadow: false
+                                },
+                                tooltip: {
+                                    shared: true
+                                },
+                                plotOptions: {
+                                    column: {
+                                        grouping: false
+                                    }
+                                },
+                                series: [{
+                                    name: 'CSSR HSDPA(%)',
+                                    data: data_y
+                                },
+                                 {
+                                    name: 'CS Fail',
+                                    type: 'column',
+                                    data: data_x,
+                                     yAxis: 1
+                                         }]
+                            });
+                                //$(".loading-data").fadeOut(1500).hide();
+                                
+                        });
+                    
+                    });
+            }
+
+            function visualisation(sheetname,chart_type){
+                //var chart_type = ['accessibility','retainability','mobility','traffic','throughput','hsupa','extra'];
+
+                switch (chart_type) {
+                    case 'accessibility':
+                        do_visualisation();
+                        break;
+                    case 'retainability':
+                        do_visualisation();
+                        break;
+                    case 'mobility':
+                        do_visualisation();
+                        break;
+                    case 'traffic':
+                        do_visualisation();
+                        break;
+                    case 'throughput':
+                        do_visualisation();
+                        break;
+                    case 'hsupa':
+                        do_visualisation();
+                        break;
+                    case 'extra':
+                        do_visualisation();
+                        break;
+                }
+            }
+
+
+
+
+
+*/
     
 }
